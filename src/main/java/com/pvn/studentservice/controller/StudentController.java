@@ -32,7 +32,7 @@ public class StudentController {
 		return studentService.addStudent(request);
 
 	}
-	
+	//dd
 	@GetMapping("/getstudentlist")
 	public List<Student> getStudentsList(){
 		return studentService.getStudentList();
