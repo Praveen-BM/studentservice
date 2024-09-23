@@ -3,7 +3,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - mvn clean install
+      - mvn clean install -DskipTests
       - echo Logging in to Amazon ECR...
       - aws --version
       - REPOSITORY_URI=021891615384.dkr.ecr.ap-south-1.amazonaws.com/pvn-studentservice
@@ -35,5 +35,5 @@ phases:
 artifacts:
   files:
     - imagedefinitions.json
-    - target/course-service.jar
+    - target/studentservice.jar
 
