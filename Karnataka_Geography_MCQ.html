@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ಭಾರತದ ಸಂವಿಧಾನ ಪತ್ರಿಕೆ ಪ್ರಶ್ನೋತ್ತರ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .question-number {
+            font-weight: bold;
+        }
+        .answer {
+            margin-top: 5px;
+            color: green;
+            display: none; /* Hide answers initially */
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+        }
+		  #scoreboard {
+            margin-top: 20px;
+            font-size: 1.2em;
+            text-align: center;
+            color: #333;
+            display: none; /* Initially hidden */
+            background-color: #ffffff; /* White background for scoreboard */
+            border: 2px solid #007bff; /* Blue border */
+            border-radius: 5px; /* Rounded corners */
+            padding: 15px; /* Padding for spacing */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        #scoreboard h2 {
+            margin: 0; /* Remove default margin */
+            color: #007bff; /* Blue color for the title */
+        }
+		 #current-time {
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 10px;
+        }
+        #timer {
+            position: absolute; /* Absolute positioning for timer */
+            color: #ff0000; /* Red color for the timer */
+            font-size: 1.2em; /* Adjust font size */
+            text-align: center;
+            top: 50%; /* Center vertically */
+            left: 50%; /* Center horizontally */
+            transform: translate(-50%, -50%); /* Adjust for centering */
+        }
+        .circle-container {
+            position: fixed; /* Fixed positioning */
+            top: 70px; /* Distance from the top */
+            right: 5px; /* Distance from the right */
+            z-index: 1000; /* Ensure it stays above other elements */
+        }
+        .circle {
+            width: 100px; /* Set width */
+            height: 100px; /* Set height */
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+        .circle svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .circle .background {
+            fill: #e0e0e0;
+        }
+        .circle .progress {
+            fill: none;
+            stroke: #007bff; /* Blue color for the progress */
+            stroke-width: 10; /* Adjust stroke width */
+            transition: stroke-dashoffset 1s linear;
+        }
+    </style>
+    <script>
+	let timer;
+        let timeRemaining = 3600; // 5 minutes in seconds
+        const totalDuration = 3600; // Total duration in seconds for progress calculation
+
+        // Function to start the countdown timer
+        function startTimer() {
+            timer = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                updateCircleProgress();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timer);
+                    alert('ನಿಮ್ಮ ಸಮಯ ಮುಗಿದಿದೆ!'); // Timer finished alert
+                }
+            }, 1000);
+        }
+
+        // Function to update timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Function to update circular progress
+        function updateCircleProgress() {
+            const progressCircle = document.getElementById('progress-circle');
+            const radius = 45; // Radius of the circle (100px / 2 - 10px stroke width)
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (timeRemaining / totalDuration) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        // Function to show answers after a specified delay (in milliseconds)
+        function showAnswersAfterDelay(delay) {
+            setTimeout(() => {
+                const answers = document.querySelectorAll('.answer');
+                answers.forEach(answer => {
+                    answer.style.display = 'block'; // Show all answers
+                });
+            }, delay);
+        }
+        // Function to show answers after a specified delay (in milliseconds)
+        function showAnswersAfterDelay(delay) {
+            setTimeout(() => {
+                const answers = document.querySelectorAll('.answer');
+                answers.forEach(answer => {
+                    answer.style.display = 'block'; // Show all answers
+                });
+            }, delay);
+        }
+
+     // Validate answers and show results
+function validateAnswers() {
+    const questions = document.querySelectorAll('.question');
+    let score = 0;
+    let wrongAnswers = 0;
+    const totalQuestions = questions.length;
+
+    questions.forEach(question => {
+        const selectedAnswer = question.querySelector('input[type="radio"]:checked');
+        const answer = question.querySelector('.answer');
+
+        if (selectedAnswer) {
+            const correctAnswer = selectedAnswer.dataset.correct === "true";
+            if (correctAnswer) {
+                score++;
+                answer.classList.add('correct');
+                answer.innerHTML = "ಸರಿ! " + answer.innerHTML;
+            } else {
+                wrongAnswers++;
+                answer.classList.add('incorrect');
+                answer.innerHTML = "ತಪ್ಪಾಗಿದೆ! " + answer.innerHTML;
+            }
+        } else {
+            // Mark unanswered as incorrect
+            answer.innerHTML = "ಉತ್ತರ ಆಯ್ಕೆ ಮಾಡಿಲ್ಲ." + answer.innerHTML;
+        }
+
+        answer.style.display = 'block'; // Show the answer
+    });
+
+    // Calculate negative marks
+    let negativeMarks = wrongAnswers * 0.25;
+    let finalScore = score - negativeMarks;
+
+    const nameInput = document.getElementById('user-name').value || 'ಅಪರಿಚಿತ(Unknown)';
+    const scoreboard = document.getElementById('scoreboard');
+    scoreboard.innerHTML = `
+        <h2>ಫಲಿತಾಂಶ</h2> 
+        ಹೆಸರು: ${nameInput}<br> 
+        ಒಟ್ಟು ಪ್ರಶ್ನೆಗಳು: ${totalQuestions}<br> 
+        ನಿಮ್ಮ ಸರಿ ಉತ್ತರಗಳು: ${score}<br> 
+        ತಿದ್ದುಪಡಿ ಅಂಕ (-0.25 ಪ್ರತಿ ತಪ್ಪು): -${negativeMarks}<br> 
+        ನಿಮ್ಮ ಅಂತಿಮ ಅಂಕಗಳು: ${finalScore.toFixed(2)}
+    `;
+
+    scoreboard.style.display = 'block'; // Show the scoreboard
+
+    // Disable all radio buttons after the quiz is submitted
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(radio => {
+        radio.disabled = true;
+    });
+}
+
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('kn-KN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('current-time').innerText = `ಪ್ರಸ್ತುತ ಸಮಯ: ${timeString}`;
+        }
+
+        window.onload = function() {
+            updateTime(); // Show initial time
+            setInterval(updateTime, 1000); // Update time every second
+            updateTimerDisplay(); // Show initial timer
+            updateCircleProgress(); // Initialize circle progress
+            startTimer(); // Start the timer
+        };
+		window.onbeforeunload = function (e) {
+		// If the condition is met, display a warning message
+		const confirmationMessage = 'Are you sure you want to leave? ';
+
+		// The message won't always appear in modern browsers but this prevents refresh/leave
+		e.returnValue = confirmationMessage; // Standard for modern browsers
+		return confirmationMessage; // For older browsers
+};
+    </script>
+</head>
+<body>
+	
+    <h1>ಭಾರತದ ಸಂವಿಧಾನ ಪ್ರಶ್ನೋತ್ತರ</h1>
+	<label for="user-name">ನಿಮ್ಮ ಹೆಸರು:</label>
+    <input type="text" id="user-name" placeholder="ಹೆಸರು ನಮೂದಿಸಿ">
+	<div id="current-time"></div> 
+	<div class="circle-container">
+        <div class="circle">
+            <svg>
+                <circle class="background" cx="50" cy="50" r="25"></circle>
+                <circle id="progress-circle" class="progress" cx="50" cy="50" r="30" stroke-dasharray="4" stroke-dashoffset="0"></circle>
+            </svg>
+            <div id="timer">1HR</div> <!-- Timer displayed inside the circle -->
+        </div>
+    </div>
+    <form id="quiz-form">
+		<div class="question">
+    <span class="question-number">1.</span> ಕರ್ನಾಟಕದ ಎತ್ತರವಾದ ಶಿಖರ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q1"> a) ಮುಳ್ಳಯನಗಿರಿ</label><br>
+    <label><input type="radio" name="q1"> b) ಕುದ್ರೆಮುಖ</label><br>
+    <label><input type="radio" name="q1"> c) ನಂದಿ ಬೆಟ್ಟ</label><br>
+    <label><input type="radio" name="q1" data-correct="true"> d) ಬಿ.ಆರ್. ಬೆಟ್ಟ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಮುಳ್ಳಯನಗಿರಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">2.</span> ಕರ್ನಾಟಕದ ಭೌಗೋಳಿಕ ರಚನೆಯಲ್ಲಿ ಮುಖ್ಯವಾಗಿರುವ ಸಮತಟ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q2"> a) ದಕ್ಷಿಣ ಭಾರತದ ಸಮತಟ</label><br>
+    <label><input type="radio" name="q2"> b) ಮಲೆನಾಡು ಸಮತಟ</label><br>
+    <label><input type="radio" name="q2"> c) ಪಶ್ಚಿಮ ಘಟ್ಟ ಸಮತಟ</label><br>
+    <label><input type="radio" name="q2" data-correct="true"> d) ಪೂರ್ವ ಘಟ್ಟ ಸಮತಟ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ದಕ್ಷಿಣ ಭಾರತದ ಸಮತಟ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">3.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಹೆಚ್ಚಾಗಿ ಯಾವ ರೀತಿಯ ಹವಾಮಾನ ಕಾಣಿಸುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q3" data-correct="true"> a) ಉಷ್ಣವಲಯ ಮಳೆಯ ರೀತಿ</label><br>
+    <label><input type="radio" name="q3"> b) ಒಣ ವಾತಾವರಣ</label><br>
+    <label><input type="radio" name="q3"> c) ಅಲ್ಪ ಒಣ ವಾತಾವರಣ</label><br>
+    <label><input type="radio" name="q3"> d) ಹಿಮಪಾತ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಉಷ್ಣವಲಯ ಮಳೆಯ ರೀತಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">4.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಯಾವ ತಿಂಗಳಲ್ಲಿ ಹೆಚ್ಚು ಮಳೆಯಾಗುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q4"> a) ಜೂನ್</label><br>
+    <label><input type="radio" name="q4" data-correct="true"> b) ಜುಲೈ</label><br>
+    <label><input type="radio" name="q4"> c) ಆಗಸ್ಟ್</label><br>
+    <label><input type="radio" name="q4"> d) ಸೆಪ್ಟೆಂಬರ್</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಜುಲೈ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">5.</span> ಕರ್ನಾಟಕದ ದೀರ್ಘ ನದಿ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q5"> a) ಕಾವೇರಿ</label><br>
+    <label><input type="radio" name="q5" data-correct="true"> b) ಕೃಷ್ಣಾ</label><br>
+    <label><input type="radio" name="q5"> c) ತುಂಗಭದ್ರಾ</label><br>
+    <label><input type="radio" name="q5"> d) ಶರಾವತಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕೃಷ್ಣಾ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">6.</span> ದಕ್ಷಿಣ ಕರ್ನಾಟಕದ ಜೀವನಾಡಿ ಎಂದು ಕರೆಯಲಾಗುವ ನದಿ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q6" data-correct="true"> a) ಕಾವೇರಿ</label><br>
+    <label><input type="radio" name="q6"> b) ನೇತ್ರಾವತಿ</label><br>
+    <label><input type="radio" name="q6"> c) ಕಬಿನಿ</label><br>
+    <label><input type="radio" name="q6"> d) ತುಂಗಭದ್ರಾ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕಾವೇರಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">7.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಯಾವ ಮಣ್ಣು ಹೆಚ್ಚು ಕಂಡುಬರುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q7"> a) ಕೆಂಪು ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q7" data-correct="true"> b) ಕಪ್ಪು ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q7"> c) ಮರಳು ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q7"> d) ಲೋಹದ ಅಂಶದ ಮಣ್ಣು</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕಪ್ಪು ಮಣ್ಣು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">8.</span> ಮಲೆನಾಡು ಭಾಗದಲ್ಲಿ ಹೆಚ್ಚಾಗಿ ಯಾವ ಮಣ್ಣು ಕಂಡುಬರುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q8"> a) ಅಳಿವಿನ ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q8" data-correct="true"> b) laterite ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q8"> c) ಲೋಹದ ಅಂಶದ ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q8"> d) ಮುದ್ದಾದ ಮಣ್ಣು</label><br>
+    <span class="answer">ಉತ್ತರ: b) laterite ಮಣ್ಣು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">9.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಯಾವ ಪ್ರಕಾರದ ಅರಣ್ಯ ಹೆಚ್ಚು ವ್ಯಾಪಿಸಿದೆ?
+    <br>
+    <label><input type="radio" name="q9" data-correct="true"> a) ಉಷ್ಣವಲಯದ ದಟ್ಟ ಅರಣ್ಯ</label><br>
+    <label><input type="radio" name="q9"> b) ಮೇಕಾನ್ ಅರಣ್ಯ</label><br>
+    <label><input type="radio" name="q9"> c) ಮರುಭೂಮಿ ಅರಣ್ಯ</label><br>
+    <label><input type="radio" name="q9"> d) ಮುಟ್ಟಿದ ಅರಣ್ಯ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಉಷ್ಣವಲಯದ ದಟ್ಟ ಅರಣ್ಯ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">10.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಯಾವ ವೃಕ್ಷ ಮುಖ್ಯವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q10"> a) ಟೀಕ್</label><br>
+    <label><input type="radio" name="q10"> b) ಮದ್ದುಮರ</label><br>
+    <label><input type="radio" name="q10"> c) ಕಾಡುಮರ</label><br>
+    <label><input type="radio" name="q10" data-correct="true"> d) ಸ್ಯಾಂಡಲ್ ವುಡ್</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಸ್ಯಾಂಡಲ್ ವುಡ್</span>
+</div>
+
+<div class="question">
+    <span class="question-number">11.</span> ಕರ್ನಾಟಕದ ಶ್ರೇಷ್ಟ ಜಲಾಶಯ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q11"> a) ಟಂಗಭದ್ರಾ ಜಲಾಶಯ</label><br>
+    <label><input type="radio" name="q11"> b) ಅಲಮಟ್ಟಿ ಜಲಾಶಯ</label><br>
+    <label><input type="radio" name="q11" data-correct="true"> c) ಕೃಷ್ಣರಾಜ ಸಾಗರ</label><br>
+    <label><input type="radio" name="q11"> d) ಬದ್ರಾವತಿ ಜಲಾಶಯ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಕೃಷ್ಣರಾಜ ಸಾಗರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">12.</span> ಕೃಷ್ಣಾ ನದಿ ಯಾವ ರಾಜ್ಯಗಳಿಂದ ಹರಿಯುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q12"> a) ಕರ್ನಾಟಕ ಮತ್ತು ತಮಿಳುನಾಡು</label><br>
+    <label><input type="radio" name="q12"> b) ಆಂಧ್ರ ಪ್ರದೇಶ ಮತ್ತು ಕರ್ನಾಟಕ</label><br>
+    <label><input type="radio" name="q12" data-correct="true"> c) ಕರ್ನಾಟಕ, ಮಹಾರಾಷ್ಟ್ರ, ಆಂಧ್ರಪ್ರದೇಶ</label><br>
+    <label><input type="radio" name="q12"> d) ಕೇರಳ ಮತ್ತು ಕರ್ನಾಟಕ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಕರ್ನಾಟಕ, ಮಹಾರಾಷ್ಟ್ರ, ಆಂಧ್ರಪ್ರದೇಶ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">13.</span> ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಕೃಷಿ ಬೆಳೆಯ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q13"> a) ಗೋಧಿ</label><br>
+    <label><input type="radio" name="q13"> b) ಜೋಳ</label><br>
+    <label><input type="radio" name="q13"> c) ಕಾಫಿ</label><br>
+    <label><input type="radio" name="q13" data-correct="true"> d) ತಾಂಡು</label><br>
+    <span class="answer">ಉತ್ತರ: d) ತಾಂಡು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">14.</span> ಪಶ್ಚಿಮ ಘಟ್ಟಗಳಲ್ಲಿ ವ್ಯಾಪಕವಾಗಿ ಕಂಡುಬರುವ ಹಾಲು ಉತ್ಪಾದನೆಯ ಪ್ರಕ್ರಿಯೆ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q14"> a) ಜೋಳದ ಉತ್ಪಾದನೆ</label><br>
+    <label><input type="radio" name="q14"> b) ದೇಹಾತ್ಮಕ ಗೋಪಾಲಕತೆ</label><br>
+    <label><input type="radio" name="q14"> c) ಕಲ್ಲು ಗದ್ದೆ ಕೃಷಿ</label><br>
+    <label><input type="radio" name="q14" data-correct="true"> d) ಹಸು-ಕುರಿ ಸಾಕಣೆ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಹಸು-ಕುರಿ ಸಾಕಣೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">15.</span> ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಮೀನುಗಾರಿಕೆ ಕೇಂದ್ರ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q15" data-correct="true"> a) ಮಂಗಳೂರು</label><br>
+    <label><input type="radio" name="q15"> b) ಬೆಂಗಳೂರು</label><br>
+    <label><input type="radio" name="q15"> c) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q15"> d) ಹುಬ್ಬಳ್ಳಿ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಮಂಗಳೂರು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">16.</span> ಕರ್ನಾಟಕದ ಶಕ್ತಿ ಉತ್ಪಾದನಾ ಉಕ್ಕುಪಾತ್ರ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q16" data-correct="true"> a) ಷರಾವತಿ ವಿದ್ಯುತ್</label><br>
+    <label><input type="radio" name="q16"> b) ಕಾಳಿನಾಡು ಜಲಾಶಯ</label><br>
+    <label><input type="radio" name="q16"> c) ಉಪ್ಪು ನದಿಗಳು</label><br>
+    <label><input type="radio" name="q16"> d) ಬದಲಾಯಿತ ಪ್ರವಾಹ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಷರಾವತಿ ವಿದ್ಯುತ್</span>
+</div>
+
+<div class="question">
+    <span class="question-number">17.</span> ಹೈಸ್ಪೀಡ್ ರೈಲು ಮಾರ್ಗವು ಯಾವ ನಗರಗಳಲ್ಲಿ ಆರಂಭವಾಯಿತು?
+    <br>
+    <label><input type="radio" name="q17"> a) ಬೆಂಗಳೂರು ಮತ್ತು ಹಾಸನ</label><br>
+    <label><input type="radio" name="q17"> b) ಮೈಸೂರು ಮತ್ತು ತುಮಕೂರು</label><br>
+    <label><input type="radio" name="q17" data-correct="true"> c) ಬೆಂಗಳೂರು ಮತ್ತು ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q17"> d) ಬೆಳಗಾವಿ ಮತ್ತು ಶಿವಮೊಗ್ಗ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಬೆಂಗಳೂರು ಮತ್ತು ಮೈಸೂರು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">18.</span> ಕರ್ನಾಟಕದ ಜನಸಂಖ್ಯೆಯ ಅತಿ ಕಡಿಮೆ ಸಂಖ್ಯೆಯ ಜಿಲ್ಲೆ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q18"> a) ಬೀದರ್</label><br>
+    <label><input type="radio" name="q18"> b) ಬೆಂಗಳೂರು ನಗರ</label><br>
+    <label><input type="radio" name="q18" data-correct="true"> c) ಕೊಡಗು</label><br>
+    <label><input type="radio" name="q18"> d) ಧಾರವಾಡ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಕೊಡಗು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">19.</span> ಕರ್ನಾಟಕದ ಪ್ರವಾಸೋದ್ಯಮದಲ್ಲಿ ಪ್ರಮುಖ ಪ್ರವಾಸ ತಾಣ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q19" data-correct="true"> a) ಹಂಪಿ</label><br>
+    <label><input type="radio" name="q19"> b) ಕೊಡಗಿನ ಬೆಟ್ಟಗಳು</label><br>
+    <label><input type="radio" name="q19"> c) ಹಸಿರು ಸಂಸ್ಕೃತಿ</label><br>
+    <label><input type="radio" name="q19"> d) ಬೆಳಗಾವಿಯ ಬೆಟ್ಟಗಳು</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಹಂಪಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">20.</span> ಮಂಗಳೂರು ನಗರವು ಏನಿಗೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q20"> a) ಉಕ್ಕು ಉದ್ದಿಮೆ</label><br>
+    <label><input type="radio" name="q20" data-correct="true"> b) ಮೀನುಗಾರಿಕೆ</label><br>
+    <label><input type="radio" name="q20"> c) ಉಚ್ಚ ಶ್ರೇಣಿಯ ರಬ್ಬರ್</label><br>
+    <label><input type="radio" name="q20"> d) ಹಣ್ಣು ತೋಟಗಳು</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಮೀನುಗಾರಿಕೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">21.</span> ಶರಾವತಿ ನದಿಯ ಉಗಮಸ್ಥಳ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q21"> a) ಉಡುಪಿಯ ಕುದುರೆಮುಖ</label><br>
+    <label><input type="radio" name="q21" data-correct="true"> b) ಶಿವಮೊಗ್ಗದ ಅಂಬುತೀರ್ಥ</label><br>
+    <label><input type="radio" name="q21"> c) ಮಂಗಳೂರಿನ ಪಶ್ಚಿಮ ಘಟ್ಟ</label><br>
+    <label><input type="radio" name="q21"> d) ದಕ್ಷಿಣ ಕನ್ನಡದ ಕುಪ್ಪಳ್ಳಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಶಿವಮೊಗ್ಗದ ಅಂಬುತೀರ್ಥ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">22.</span> ಬೆಂಗಳೂರು ನಗರವು ಹೇಗಿರುವುದರಿಂದ "ಗಾರ್ಡನ್ ಸಿಟಿ" ಎಂದು ಕರೆಯಲ್ಪಡುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q22"> a) ಉದ್ದವಾದ ರಸ್ತೆಗಳಿಂದ</label><br>
+    <label><input type="radio" name="q22" data-correct="true"> b) ಉದ್ಯಾನವನಗಳಿಂದ</label><br>
+    <label><input type="radio" name="q22"> c) ಪ್ರಾಚೀನ ಕೋಟೆಗಳಿಂದ</label><br>
+    <label><input type="radio" name="q22"> d) ಅನೇಕ ಗಣಪತಿಯ ದೇವಸ್ಥಾನಗಳಿಂದ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಉದ್ಯಾನವನಗಳಿಂದ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">23.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಉಕ್ಕು ಉತ್ಪಾದನೆಗೆ ಹೆಸರುವಾಸಿಯಾಗಿರುವ ಸ್ಥಳ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q23"> a) ಹಾಸನ</label><br>
+    <label><input type="radio" name="q23" data-correct="true"> b) ಬಳ್ಳಾರಿ</label><br>
+    <label><input type="radio" name="q23"> c) ತುಮಕೂರು</label><br>
+    <label><input type="radio" name="q23"> d) ಮೈಸೂರು</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಬಳ್ಳಾರಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">24.</span> ಕೃಷ್ಣಾ ನದಿಯ ಮೇಲೆ ನಿರ್ಮಿಸಲಾದ ಅತಿದೊಡ್ಡ ಜಲಾಶಯ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q24"> a) ತುಂಗಭದ್ರಾ</label><br>
+    <label><input type="radio" name="q24" data-correct="true"> b) ಅಲಮಟ್ಟಿ</label><br>
+    <label><input type="radio" name="q24"> c) ಲಿಂಗನಮಕ್ಕಿ</label><br>
+    <label><input type="radio" name="q24"> d) ಹರಂಗಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಅಲಮಟ್ಟಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">25.</span> ಕರ್ನಾಟಕದ ರಾಜಧಾನಿ ಬೆಂಗಳೂರು ಯಾವ ವೇಗದ ವೃದ್ದಿಗೆ ಕಾರಣವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q25" data-correct="true"> a) ಐಟಿ ಉದ್ಯಮ</label><br>
+    <label><input type="radio" name="q25"> b) ವಾಣಿಜ್ಯ</label><br>
+    <label><input type="radio" name="q25"> c) ಪಶುಸಂಗೋಪನೆ</label><br>
+    <label><input type="radio" name="q25"> d) ಕಬ್ಬಿನ ಕೃಷಿ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಐಟಿ ಉದ್ಯಮ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">26.</span> ತಿಪ್ಪಗೋಂಡನಹಳ್ಳಿ ಜಲಾಶಯವು ಯಾವ ನದಿಯ ಮೇಲೆ ಇದೆ?
+    <br>
+    <label><input type="radio" name="q26"> a) ಕಾವೇರಿ</label><br>
+    <label><input type="radio" name="q26" data-correct="true"> b) ಅರ್ಕಾವತಿ</label><br>
+    <label><input type="radio" name="q26"> c) ಹೇಮಾವತಿ</label><br>
+    <label><input type="radio" name="q26"> d) ಶರಾವತಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಅರ್ಕಾವತಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">27.</span> ಕರ್ನಾಟಕದ ಯಾವ ಜಿಲ್ಲೆಯು "ಶಿಲ್ಪಿ ನಗರ" ಎಂದು ಕರೆಯಲ್ಪಡುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q27"> a) ಬೀದರ್</label><br>
+    <label><input type="radio" name="q27"> b) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q27"> c) ಬೀಳಗಿ</label><br>
+    <label><input type="radio" name="q27" data-correct="true"> d) ಬಾಗಲಕೋಟೆ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಬಾಗಲಕೋಟೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">28.</span> ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಕಬ್ಬು ಬೆಳೆ ಪ್ರದೇಶ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q28" data-correct="true"> a) ಮಂಡ್ಯ</label><br>
+    <label><input type="radio" name="q28"> b) ದಾವಣಗೆರೆ</label><br>
+    <label><input type="radio" name="q28"> c) ಚಿಕ್ಕಮಗಳೂರು</label><br>
+    <label><input type="radio" name="q28"> d) ಬೀದರ್</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಮಂಡ್ಯ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">29.</span> ಉತ್ತರ ಕರ್ನಾಟಕದ ಮುಖ್ಯ ಕಾಫಿ ಬೆಳೆ ಪ್ರದೇಶ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q29" data-correct="true"> a) ಕೊಡಗು</label><br>
+    <label><input type="radio" name="q29"> b) ಚಾಮರಾಜನಗರ</label><br>
+    <label><input type="radio" name="q29"> c) ಹಾಸನ</label><br>
+    <label><input type="radio" name="q29"> d) ಬಳ್ಳಾರಿ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕೊಡಗು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">30.</span> ಆನೆಮಲೆ ಮತ್ತು ಮೂಡಬಿದ್ರೆದಲ್ಲಿ ಕಂಡುಬರುವ ಬೆಟ್ಟಗಳ ಮೂಲ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q30" data-correct="true"> a) ಪಶ್ಚಿಮ ಘಟ್ಟ</label><br>
+    <label><input type="radio" name="q30"> b) ಪೂರ್ವ ಘಟ್ಟ</label><br>
+    <label><input type="radio" name="q30"> c) ಮಲೆನಾಡು</label><br>
+    <label><input type="radio" name="q30"> d) ದಕ್ಷಿಣ ಸಮತಟ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಪಶ್ಚಿಮ ಘಟ್ಟ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">31.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಪ್ರಮುಖವಾದ ಚಿನ್ನದ ಗಣಿಯಲ್ಲಿ ಇರುವ ಸ್ಥಳ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q31" data-correct="true"> a) ಕೋಲಾರ</label><br>
+    <label><input type="radio" name="q31"> b) ಧಾರವಾಡ</label><br>
+    <label><input type="radio" name="q31"> c) ಚಿತ್ರದುರ್ಗ</label><br>
+    <label><input type="radio" name="q31"> d) ಶಿವಮೊಗ್ಗ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕೋಲಾರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">32.</span> ಕರಾವಳಿ ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಮೀನು ಹಿಡಿಯುವ ತಾಣ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q32" data-correct="true"> a) ಕಾರವಾರ</label><br>
+    <label><input type="radio" name="q32"> b) ಹಾಸನ</label><br>
+    <label><input type="radio" name="q32"> c) ತುಮಕೂರು</label><br>
+    <label><input type="radio" name="q32"> d) ಬೆಂಗಳೂರು</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕಾರವಾರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">33.</span> ಕರ್ನಾಟಕದ ಜನಸಂಖ್ಯಾ ತೀವ್ರತೆಯ ಅತಿ ಕಡಿಮೆ ಜಿಲ್ಲೆ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q33"> a) ರಾಯಚೂರು</label><br>
+    <label><input type="radio" name="q33" data-correct="true"> b) ಯಾದಗಿರಿ</label><br>
+    <label><input type="radio" name="q33"> c) ಚಿತ್ರದುರ್ಗ</label><br>
+    <label><input type="radio" name="q33"> d) ಬೀದರ್</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಯಾದಗಿರಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">34.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಹೆಚ್ಚಾಗಿ ಕಂಡುಬರುವ ಲೋಹದ ಅಂಶದ ಮಣ್ಣು ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q34"> a) ಕಪ್ಪು ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q34" data-correct="true"> b) laterite ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q34"> c) ಕೆಂಪು ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q34"> d) ಮರಳು ಮಣ್ಣು</label><br>
+    <span class="answer">ಉತ್ತರ: b) laterite ಮಣ್ಣು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">35.</span> ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಪ್ರವಾಸ ತಾಣ ಹಂಪಿ ಯಾವ ರಾಜಧಾನಿಯು ಇತ್ತು?
+    <br>
+    <label><input type="radio" name="q35"> a) ಬದಾಮಿ</label><br>
+    <label><input type="radio" name="q35" data-correct="true"> b) ವಿಜಯನಗರ</label><br>
+    <label><input type="radio" name="q35"> c) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q35"> d) ಶ್ರೀರಂಗಪಟ್ಟಣ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ವಿಜಯನಗರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">36.</span> ಧಾರವಾಡದ ಲವಣ ಹಿನ್ನೀರು ಬಯಲು ಪ್ರದೇಶವು ಯಾವ ರೀತಿಯ ಆಹಾರಕ್ಕೆ ಹೆಸರುವಾಸಿಯಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q36"> a) ಅಕ್ಕಿ</label><br>
+    <label><input type="radio" name="q36"> b) ಬಾಳೆ</label><br>
+    <label><input type="radio" name="q36" data-correct="true"> c) ಹುಣಸೆ</label><br>
+    <label><input type="radio" name="q36"> d) ತಿನಿಸು</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಹುಣಸೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">37.</span> ಕರ್ನಾಟಕದ ಯಾವ ಪ್ರದೇಶವು ಜೋಳ ಬೆಳೆಗಾಗಿ ಪ್ರಸಿದ್ಧ?
+    <br>
+    <label><input type="radio" name="q37"> a) ಬೀದರ</label><br>
+    <label><input type="radio" name="q37" data-correct="true"> b) ಕಲಬುರಗಿ</label><br>
+    <label><input type="radio" name="q37"> c) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q37"> d) ಕೋಲಾರ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕಲಬುರಗಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">38.</span> ಬೆಂಗಳೂರಿನ ಸಿಲಿಕಾನ್ ವ್ಯಾಲಿ ಹೆಸರು ಯಾವ ಉದ್ಯಮದೊಂದಿಗೆ ಸಂಬಂಧಿಸಿದೆ?
+    <br>
+    <label><input type="radio" name="q38"> a) ಟೆಕ್ಸ್‌ಟೈಲ್</label><br>
+    <label><input type="radio" name="q38" data-correct="true"> b) ಐಟಿ ಮತ್ತು ತಂತ್ರಜ್ಞಾನ</label><br>
+    <label><input type="radio" name="q38"> c) ಉಕ್ಕು ಮತ್ತು ಕಬ್ಬು</label><br>
+    <label><input type="radio" name="q38"> d) ಪ್ರವಾಸೋದ್ಯಮ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಐಟಿ ಮತ್ತು ತಂತ್ರಜ್ಞಾನ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">39.</span> ಕರ್ನಾಟಕದ ಸಾಂಪ್ರದಾಯಿಕ ಕುಸ್ತಿ ಕ್ರೀಡೆ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q39" data-correct="true"> a) ಕಂಬಳ</label><br>
+    <label><input type="radio" name="q39"> b) ಮಾಲಖಂಬ</label><br>
+    <label><input type="radio" name="q39"> c) ಜಂಬವಾಣಿ</label><br>
+    <label><input type="radio" name="q39"> d) ನದಗಟ್ಟಿ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕಂಬಳ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">40.</span> ಚಿಕ್ಕಮಗಳೂರು ಯಾವ ಕೃಷಿ ಉತ್ಪಾದನೆಯಿಂದ ಪ್ರಸಿದ್ಧ?
+    <br>
+    <label><input type="radio" name="q40"> a) ಹಾಲು</label><br>
+    <label><input type="radio" name="q40" data-correct="true"> b) ಕಾಫಿ</label><br>
+    <label><input type="radio" name="q40"> c) ತೋಫು</label><br>
+    <label><input type="radio" name="q40"> d) ಅಕ್ಕಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕಾಫಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">41.</span> ಹಂಪಿಯ ವಿಶ್ವವಂತಿಕೆಯು ಏನೆಂದೆ ಪ್ರಸಿದ್ಧ?
+    <br>
+    <label><input type="radio" name="q41" data-correct="true"> a) ಕಲ್ಲಿನ ಶಿಲ್ಪ</label><br>
+    <label><input type="radio" name="q41"> b) ಹಾಸನ ಕೋಟೆ</label><br>
+    <label><input type="radio" name="q41"> c) ಸುಂದರ ತೋಟಗಳು</label><br>
+    <label><input type="radio" name="q41"> d) ನದಿ ಪ್ರವಾಹ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕಲ್ಲಿನ ಶಿಲ್ಪ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">42.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಅತಿದೊಡ್ಡ ನದಿಯ ಅಣಕು ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q42"> a) ತುಂಗಭದ್ರಾ</label><br>
+    <label><input type="radio" name="q42"> b) ಲಿಂಗನಮಕ್ಕಿ</label><br>
+    <label><input type="radio" name="q42"> c) ಕೃಷ್ಣರಾಜ ಸಾಗರ</label><br>
+    <label><input type="radio" name="q42" data-correct="true"> d) ಅಲಮಟ್ಟಿ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಅಲಮಟ್ಟಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">43.</span> ಧಾರವಾಡದಲ್ಲಿ ಪ್ರಸಿದ್ಧ ಪೋಷಕ ಆಹಾರ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q43"> a) ಹುಣಸೆ ಹಣ್ಣು</label><br>
+    <label><input type="radio" name="q43" data-correct="true"> b) ಕಡಲೆಕಾಯಿ</label><br>
+    <label><input type="radio" name="q43"> c) ಕಡ್ಲೆಹಳ್ಳಿ ಹುಳಿ</label><br>
+    <label><input type="radio" name="q43"> d) ರಾಗಿ ಮುದ್ದೆ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕಡಲೆಕಾಯಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">44.</span> ಕರ್ನಾಟಕದ ಮೂಲದ ಪಶುಸಂಗೋಪನೆ ಕೇಂದ್ರ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q44" data-correct="true"> a) ಬೀದರ್</label><br>
+    <label><input type="radio" name="q44"> b) ಮಂಡ್ಯ</label><br>
+    <label><input type="radio" name="q44"> c) ಹುಬ್ಬಳ್ಳಿ</label><br>
+    <label><input type="radio" name="q44"> d) ರಾಮನಗರ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಬೀದರ್</span>
+</div>
+
+<div class="question">
+    <span class="question-number">45.</span> ಕರ್ನಾಟಕದ ಯಾವ ಸ್ಥಳವನ್ನು "ಸಾಂಸ್ಕೃತಿಕ ನಗರ" ಎಂದು ಕರೆಯಲಾಗುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q45"> a) ಧಾರವಾಡ</label><br>
+    <label><input type="radio" name="q45" data-correct="true"> b) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q45"> c) ಬೆಂಗಳೂರು</label><br>
+    <label><input type="radio" name="q45"> d) ಶಿವಮೊಗ್ಗ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಮೈಸೂರು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">46.</span> ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಜಲವಿದ್ಯುತ್ ಕೇಂದ್ರ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q46" data-correct="true"> a) ಶರಾವತಿ</label><br>
+    <label><input type="radio" name="q46"> b) ಹತ್ತೇರಿ</label><br>
+    <label><input type="radio" name="q46"> c) ಧೂಪದಕಟ್ಟೆ</label><br>
+    <label><input type="radio" name="q46"> d) ಬೀದರ್‌ನ ಅಣಕು</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಶರಾವತಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">47.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಉಕ್ಕಿನ ಉತ್ಪಾದನೆಯ ಪ್ರಮುಖ ಕೇಂದ್ರ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q47"> a) ತುಮಕೂರು</label><br>
+    <label><input type="radio" name="q47" data-correct="true"> b) ಬಳ್ಳಾರಿ</label><br>
+    <label><input type="radio" name="q47"> c) ಮಂಡ್ಯ</label><br>
+    <label><input type="radio" name="q47"> d) ಮೈಸೂರು</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಬಳ್ಳಾರಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">48.</span> ತುಮಕೂರಿನಲ್ಲಿ ಯಾವ ಚರ್ಮಸಾಲೆಯು ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q48"> a) ಚಿನ್ನದ ಗಣಿ</label><br>
+    <label><input type="radio" name="q48"> b) ಹಾವುಗಳ ನಿಲಯ</label><br>
+    <label><input type="radio" name="q48" data-correct="true"> c) ಪಾದರಕ್ಷೆ ಕೈಗಾರಿಕೆ</label><br>
+    <label><input type="radio" name="q48"> d) ಉಕ್ಕು ಶೋಧನೆ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಪಾದರಕ್ಷೆ ಕೈಗಾರಿಕೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">49.</span> ಬಾಗಲಕೋಟೆ ಜಿಲ್ಲೆಯು ಯಾವ ಕೈಗಾರಿಕೆಗೆ ಹೆಸರುವಾಸಿಯಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q49"> a) ಕಬ್ಬಿನ ಉತ್ಪಾದನೆ</label><br>
+    <label><input type="radio" name="q49" data-correct="true"> b) ಶಿಲ್ಪಕಲೆ</label><br>
+    <label><input type="radio" name="q49"> c) ಉಕ್ಕು ಕೈಗಾರಿಕೆ</label><br>
+    <label><input type="radio" name="q49"> d) ಚರ್ಮ ಕೈಗಾರಿಕೆ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಶಿಲ್ಪಕಲೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">50.</span> ಮೈಸೂರು ಜಿಲ್ಲೆಯು ಯಾವ ಹಳ್ಳಿಯು ಪೇಟೆಯಾಗಿ ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q50"> a) ಹುಣಸೂರು</label><br>
+    <label><input type="radio" name="q50"> b) ಹಾಸನ</label><br>
+    <label><input type="radio" name="q50" data-correct="true"> c) ಪಾಂಡವಪುರ</label><br>
+    <label><input type="radio" name="q50"> d) ಹೆಗ್ಗಡದೇವನಕೋಟೆ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಪಾಂಡವಪುರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">51.</span> "ಚಿಕರಂಗಿ" ಯಾವ ಜಿಲ್ಲೆಯ ಪ್ರಾಚೀನ ಹೆಸರಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q51"> a) ಶಿವಮೊಗ್ಗ</label><br>
+    <label><input type="radio" name="q51"> b) ಧಾರವಾಡ</label><br>
+    <label><input type="radio" name="q51"> c) ಹಾಸನ</label><br>
+    <label><input type="radio" name="q51" data-correct="true"> d) ಚಿಕ್ಕಮಗಳೂರು</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಚಿಕ್ಕಮಗಳೂರು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">52.</span> ಪಶ್ಚಿಮ ಘಟ್ಟಗಳಲ್ಲಿ ಯಾಳೂರು ಏನಿಗಾಗಿ ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q52"> a) ಕಬ್ಬಿನ ಕೃಷಿ</label><br>
+    <label><input type="radio" name="q52" data-correct="true"> b) ಕಾಫಿ ತೋಟಗಳು</label><br>
+    <label><input type="radio" name="q52"> c) ಚರ್ಮ ಕೈಗಾರಿಕೆ</label><br>
+    <label><input type="radio" name="q52"> d) ಬಾಳೆಹಣ್ಣು</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕಾಫಿ ತೋಟಗಳು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">53.</span> ಉತ್ತರ ಕರ್ನಾಟಕದ ಯಾವುದೇ ಉತ್ಸವದ ಹೆಸರು ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q53"> a) ದಸರಾ</label><br>
+    <label><input type="radio" name="q53"> b) ಬೆಲ್ಲದ ಹಬ್ಬ</label><br>
+    <label><input type="radio" name="q53" data-correct="true"> c) ಸಿದ್ದೇಶ್ವರ ಜಾತ್ರೆ</label><br>
+    <label><input type="radio" name="q53"> d) ಗುಗ್ಗರಿ ಜಾತ್ರೆ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಸಿದ್ದೇಶ್ವರ ಜಾತ್ರೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">54.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಯಾವ ಬೆಟ್ಟವು ಅತ್ಯಂತ ಎತ್ತರದಲ್ಲಿದೆ?
+    <br>
+    <label><input type="radio" name="q54"> a) ಮುದ್ದನಹಳ್ಳಿ ಬೆಟ್ಟ</label><br>
+    <label><input type="radio" name="q54"> b) ಬಲ್ಲಾಳ್ ಬೆಟ್ಟ</label><br>
+    <label><input type="radio" name="q54" data-correct="true"> c) ಮುಳ್ಳಯನಗಿರಿ</label><br>
+    <label><input type="radio" name="q54"> d) ರಾಮನಗರ ಬೆಟ್ಟ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಮುಳ್ಳಯನಗಿರಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">55.</span> ಕರ್ನಾಟಕದ ಹೆಸರಾಂತ ಜೈಲಿನ ಹೆಸರೇನು?
+    <br>
+    <label><input type="radio" name="q55" data-correct="true"> a) ಪರಪ್ಪನ ಅಗ್ರಹಾರ</label><br>
+    <label><input type="radio" name="q55"> b) ಬಳ್ಳಾರಿ</label><br>
+    <label><input type="radio" name="q55"> c) ಧಾರವಾಡ</label><br>
+    <label><input type="radio" name="q55"> d) ವಿಜಯಪುರ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಪರಪ್ಪನ ಅಗ್ರಹಾರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">56.</span> ಯಾವ ನಗರವನ್ನು "ಸಿಲ್ಕ್ ಸಿಟಿ" ಎಂದೂ ಕರೆಯಲಾಗುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q56"> a) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q56"> b) ಬೆಂಗಳೂರು</label><br>
+    <label><input type="radio" name="q56"> c) ಹುಬ್ಬಳ್ಳಿ</label><br>
+    <label><input type="radio" name="q56" data-correct="true"> d) ರಾಮನಗರ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ರಾಮನಗರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">57.</span> ಬೆಂಗಳೂರಿನ ಕರ್ನಾಟಕ ಹೈಕೋರ್ಟ್ ಕಟ್ಟಡದ ಹೆಸರು ಏನು?
+    <br>
+    <label><input type="radio" name="q57" data-correct="true"> a) ಕುವೆಂಪು ಭವನ</label><br>
+    <label><input type="radio" name="q57"> b) ಅಟ್ಟಾರಿಯಾ</label><br>
+    <label><input type="radio" name="q57"> c) ಕೆಂಪೇಗೌಡ ಸಭಾಂಗಣ</label><br>
+    <label><input type="radio" name="q57"> d) ಅತ್ತರ ದೀಕ್ಷಿತ ಸಭಾಂಗಣ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಅತ್ತರ ದೀಕ್ಷಿತ ಸಭಾಂಗಣ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">58.</span> ಕರ್ನಾಟಕದ ಯಾವ ಜಿಲ್ಲೆಯಲ್ಲಿ ಅತಿ ಹೆಚ್ಚು ತಾಂತ್ರಿಕ ವಿದ್ಯುತ್ ಸ್ಥಾವರಗಳಿವೆ?
+    <br>
+    <label><input type="radio" name="q58"> a) ಶಿವಮೊಗ್ಗ</label><br>
+    <label><input type="radio" name="q58" data-correct="true"> b) ಉತ್ತರ ಕನ್ನಡ</label><br>
+    <label><input type="radio" name="q58"> c) ಧಾರವಾಡ</label><br>
+    <label><input type="radio" name="q58"> d) ಬೀದರ್</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಉತ್ತರ ಕನ್ನಡ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">59.</span> ಚಾಮರಾಜನಗರದಲ್ಲಿ ಮುಖ್ಯವಾಗಿ ಯಾವ ಕೃಷಿ ಬೆಳೆಯುತ್ತಿದೆ?
+    <br>
+    <label><input type="radio" name="q59"> a) ಆಲೂಗೆಡ್ಡೆ</label><br>
+    <label><input type="radio" name="q59"> b) ಅಕ್ಕಿ</label><br>
+    <label><input type="radio" name="q59" data-correct="true"> c) ಎಳ್ಳು</label><br>
+    <label><input type="radio" name="q59"> d) ಕಾಫಿ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಎಳ್ಳು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">60.</span> ಯಾವ ನದಿ ಕರ್ನಾಟಕದಲ್ಲಿ ಉಗಮವಾಗಿ, ತಮಿಳುನಾಡಿಗೆ ಹರಿಯುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q60"> a) ತುಂಗಭದ್ರಾ</label><br>
+    <label><input type="radio" name="q60"> b) ಕೃಷ್ಣಾ</label><br>
+    <label><input type="radio" name="q60" data-correct="true"> c) ಕಾವೇರಿ</label><br>
+    <label><input type="radio" name="q60"> d) ಶರಾವತಿ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಕಾವೇರಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">61.</span> ಕರ್ನಾಟಕದ ಯಾವ ಭಾಗದಲ್ಲಿ ಮುಂಗಾರು ಮುಂಬರುವ ಸಮಯದಲ್ಲಿ ಗಾಳಿ ಬಿರುಸಾದಂತೆ ಬೀಳುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q61"> a) ಮಲೆನಾಡು</label><br>
+    <label><input type="radio" name="q61"> b) ಉತ್ತರ ಕನ್ನಡ</label><br>
+    <label><input type="radio" name="q61" data-correct="true"> c) ಬಿಜಾಪುರ</label><br>
+    <label><input type="radio" name="q61"> d) ದಕ್ಷಿಣ ಕನ್ನಡ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಮಲೆನಾಡು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">62.</span> ತಿಪಟೂರು ತಹಶೀಲದ ಸುತ್ತಮುತ್ತ ಹೆಚ್ಚಾಗಿ ಬೆಳೆಸುವ ಬೆಳೆಯಾದ ತುಂಗಲು ಯಾವ ಬೆಳೆಗೆ ಸೇರಿದೆ?
+    <br>
+    <label><input type="radio" name="q62"> a) ಎಣ್ಣೆಕೋಸು</label><br>
+    <label><input type="radio" name="q62" data-correct="true"> b) ಎಳ್ಳು</label><br>
+    <label><input type="radio" name="q62"> c) ಜೋಳ</label><br>
+    <label><input type="radio" name="q62"> d) ಗೋಧಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಎಳ್ಳು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">63.</span> ಉತ್ತರ ಕರ್ನಾಟಕದ ಯಾವ ಜಿಲ್ಲೆಯಲ್ಲಿ ಪಶುಸಂಗೋಪನೆ ಮುಖ್ಯ ಉದ್ಯಮವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q63" data-correct="true"> a) ಬೀದರ್</label><br>
+    <label><input type="radio" name="q63"> b) ಬೆಳಗಾವಿ</label><br>
+    <label><input type="radio" name="q63"> c) ವಿಜಯಪುರ</label><br>
+    <label><input type="radio" name="q63"> d) ದಾವಣಗೆರೆ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಬೀದರ್</span>
+</div>
+
+<div class="question">
+    <span class="question-number">64.</span> "ಶ್ರವಣಬೆಳಗೋಳ" ಯಾವನಿಗೆ ಪ್ರಸಿದ್ಧ ತೀರ್ಥಕ್ಷೇತ್ರವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q64" data-correct="true"> a) ಜೈನ ಧರ್ಮ</label><br>
+    <label><input type="radio" name="q64"> b) ಬೌದ್ಧ ಧರ್ಮ</label><br>
+    <label><input type="radio" name="q64"> c) ಶೈವ ಧರ್ಮ</label><br>
+    <label><input type="radio" name="q64"> d) ವೈಷ್ಣವ ಧರ್ಮ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಜೈನ ಧರ್ಮ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">65.</span> "ಹುಬ್ಬಳ್ಳಿ" ಪ್ರಸಿದ್ಧವಾಗಿದೆ ಏನಿಗಾಗಿ?
+    <br>
+    <label><input type="radio" name="q65" data-correct="true"> a) ಗೇಣಿನ ಬೀಜ</label><br>
+    <label><input type="radio" name="q65"> b) ಸಕ್ಕರೆ</label><br>
+    <label><input type="radio" name="q65"> c) ರೇಷ್ಮೆ</label><br>
+    <label><input type="radio" name="q65"> d) ಹಾಸಿನ ಗಿಡ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಗೇಣಿನ ಬೀಜ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">66.</span> ಕರ್ನಾಟಕದ ಕೋಲಾರದಲ್ಲಿ ಏನನ್ನು ಹೆಚ್ಚಾಗಿ ಬೆಳೆಸುತ್ತಾರೆ?
+    <br>
+    <label><input type="radio" name="q66"> a) ಟೊಮ್ಯಾಟೋ</label><br>
+    <label><input type="radio" name="q66"> b) ಆಲೂಗಡ್ಡೆ</label><br>
+    <label><input type="radio" name="q66"> c) ಗೋದಿಹಿಟ್ಟು</label><br>
+    <label><input type="radio" name="q66" data-correct="true"> d) ಹಸಿರುಪಲ್ಲು</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಹಸಿರುಪಲ್ಲು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">67.</span> ಮೈಸೂರು ಅರಮನೆ ಯಾವ ಶೈಲಿಯಲ್ಲಿ ಕಟ್ಟಲಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q67"> a) ಯುರೋಪಿಯನ್ ಶೈಲಿ</label><br>
+    <label><input type="radio" name="q67" data-correct="true"> b) ಇಂಡೋ-ಸಾರಸನಿಕ್ ಶೈಲಿ</label><br>
+    <label><input type="radio" name="q67"> c) ಡ್ರಾವಿಡಿಯನ್ ಶೈಲಿ</label><br>
+    <label><input type="radio" name="q67"> d) ಭಾರತೀಯ ಗಾಥಿಕ ಶೈಲಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಇಂಡೋ-ಸಾರಸನಿಕ್ ಶೈಲಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">68.</span> ಕರ್ನಾಟಕದ ಕುಡುಬಿನ ಬೆಳೆ ಯಾವು?
+    <br>
+    <label><input type="radio" name="q68"> a) ಕಾಫಿ</label><br>
+    <label><input type="radio" name="q68"> b) ತೆಂಗು</label><br>
+    <label><input type="radio" name="q68" data-correct="true"> c) ಮೆಣಸು</label><br>
+    <label><input type="radio" name="q68"> d) ಎಳ್ಳು</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಮೆಣಸು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">69.</span> ಪಶ್ಚಿಮ ಘಟ್ಟಗಳು ಪ್ರಾಕೃತಿಕವಾಗಿ ಏನನ್ನು ನೀಡುತ್ತವೆ?
+    <br>
+    <label><input type="radio" name="q69"> a) ರೇಷ್ಮೆ</label><br>
+    <label><input type="radio" name="q69"> b) ಲೋಹ</label><br>
+    <label><input type="radio" name="q69"> c) ಹಣ್ಣುಗಳು</label><br>
+    <label><input type="radio" name="q69" data-correct="true"> d) ಮಳೆ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಮಳೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">70.</span> "ರಾಜಧಾನಿ ಏರಿಯಾ ಅಭಿವೃದ್ಧಿ ಪ್ರಾಧಿಕಾರ" ಯಾವ ನಗರದಲ್ಲಿದೆ?
+    <br>
+    <label><input type="radio" name="q70"> a) ಹುಬ್ಬಳ್ಳಿ</label><br>
+    <label><input type="radio" name="q70"> b) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q70" data-correct="true"> c) ಬೆಂಗಳೂರು</label><br>
+    <label><input type="radio" name="q70"> d) ಬಳ್ಳಾರಿ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಬೆಂಗಳೂರು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">71.</span> ಕರ್ನಾಟಕದ ಯಾವ ನದಿಯು ಧಾರವಾಡ ಮತ್ತು ಕೊಪ್ಪಳ ನಡುವೆ ಹರಿಯುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q71"> a) ಕೃಷ್ಣಾ</label><br>
+    <label><input type="radio" name="q71" data-correct="true"> b) ತುಂಗಭದ್ರಾ</label><br>
+    <label><input type="radio" name="q71"> c) ಕಾವೇರಿ</label><br>
+    <label><input type="radio" name="q71"> d) ಶರಾವತಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ತುಂಗಭದ್ರಾ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">72.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಆಯುರ್ವೇದದ ಪ್ರಮುಖ ವೈದ್ಯಕೀಯ ಕೇಂದ್ರ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q72"> a) ಮೈಸೂರು ಆಯುರ್ವೇದ ಆಸ್ಪತ್ರೆ</label><br>
+    <label><input type="radio" name="q72"> b) ಶ್ರೀಧರ ಆಯುರ್ವೇದ ಆಸ್ಪತ್ರೆ</label><br>
+    <label><input type="radio" name="q72"> c) ಕಂಚಿ ಆಯುರ್ವೇದ ಆಸ್ಪತ್ರೆ</label><br>
+    <label><input type="radio" name="q72" data-correct="true"> d) ಬೆಂಗಳೂರು ಆಯುರ್ವೇದ ಕೇಂದ್ರ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಬೆಂಗಳೂರು ಆಯುರ್ವೇದ ಕೇಂದ್ರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">73.</span> "ಭದ್ರಾವತಿ" ನಗರವು ಯಾವ ರಾಜ್ಯದಲ್ಲಿ ಇದೆ?
+    <br>
+    <label><input type="radio" name="q73" data-correct="true"> a) ಕರ್ನಾಟಕ</label><br>
+    <label><input type="radio" name="q73"> b) ತಮಿಳುನಾಡು</label><br>
+    <label><input type="radio" name="q73"> c) ಆಂಧ್ರಪ್ರದೇಶ</label><br>
+    <label><input type="radio" name="q73"> d) ಮಹಾರಾಷ್ಟ್ರ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕರ್ನಾಟಕ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">74.</span> "ಗೋಕಾಕ" ಜಲಪಾತವು ಯಾವ ನದಿಯ ಮೇಲಿನದು?
+    <br>
+    <label><input type="radio" name="q74" data-correct="true"> a) ಗೋಕಾಕ ನದಿ</label><br>
+    <label><input type="radio" name="q74"> b) ಕ್ರುಷ್ಣಾ</label><br>
+    <label><input type="radio" name="q74"> c) ತುಂಗಭದ್ರಾ</label><br>
+    <label><input type="radio" name="q74"> d) ಶರಾವತಿ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಗೋಕಾಕ ನದಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">75.</span> "ಶ್ರೀ ಪಂಚಾಮ್ರುತೇಶ್ವರ" ದೇವಸ್ಥಾನವು ಯಾವ ಸ್ಥಳದಲ್ಲಿ ಇದೆ?
+    <br>
+    <label><input type="radio" name="q75" data-correct="true"> a) ಕಡಲೆಕೋಟೆ</label><br>
+    <label><input type="radio" name="q75"> b) ಕೊಪ್ಪಳ</label><br>
+    <label><input type="radio" name="q75"> c) ಕಾರವಾರ</label><br>
+    <label><input type="radio" name="q75"> d) ಕಷ್ಟೋಬಾಧೆ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕಡಲೆಕೋಟೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">76.</span> "ಶಿವಮೊಗ್ಗ" ಎಂದು ಕರೆಯಲ್ಪಡುವ ಜಿಲ್ಲೆ ಯಾವದನ್ನು ಒಳಗೊಂಡಿದೆ?
+    <br>
+    <label><input type="radio" name="q76" data-correct="true"> a) ಹಾಲಕೊಂಡ</label><br>
+    <label><input type="radio" name="q76"> b) ಬದಗಿಕೋಣೆ</label><br>
+    <label><input type="radio" name="q76"> c) ಹೆಬ್ಬಳಲು</label><br>
+    <label><input type="radio" name="q76"> d) ಶಿರಸಿಯ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಹಾಲಕೊಂಡ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">77.</span> "ಬೇಲೂರು" ಎಂಬ ಸ್ಥಳವು ಏಕೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q77" data-correct="true"> a) ಕಲ್ಲು ಶಿಲ್ಪ</label><br>
+    <label><input type="radio" name="q77"> b) ಧರ್ಮಸ್ಥಳ</label><br>
+    <label><input type="radio" name="q77"> c) ಕೊಂಡಣ ಹೊಲ್ಲಕ</label><br>
+    <label><input type="radio" name="q77"> d) ಸೋಮೇಶ್ವರ ಜಲಪಾತ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಕಲ್ಲು ಶಿಲ್ಪ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">78.</span> "ಹೊನ್ನಾವರ್" ಎಂದರೆ ಏನು?
+    <br>
+    <label><input type="radio" name="q78"> a) ಹಣ್ಣು</label><br>
+    <label><input type="radio" name="q78" data-correct="true"> b) ಹೂವಿನ ಬೆಳೆ</label><br>
+    <label><input type="radio" name="q78"> c) ಮರ</label><br>
+    <label><input type="radio" name="q78"> d) ಕಂದಕಾರಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಹೂವಿನ ಬೆಳೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">79.</span> "ಧಾರವಾಡ" ನಗರವು ಯಾವ ನದಿಯ ತೀರದಲ್ಲಿ ಇದೆ?
+    <br>
+    <label><input type="radio" name="q79"> a) ಗಂಗಾವತಿ</label><br>
+    <label><input type="radio" name="q79" data-correct="true"> b) ಧಾರವಾಡ ನದಿ</label><br>
+    <label><input type="radio" name="q79"> c) ಕೃಷ್ಣಾ</label><br>
+    <label><input type="radio" name="q79"> d) ತುಂಗಭದ್ರಾ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಧಾರವಾಡ ನದಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">80.</span> "ಮಣಿಪಾಲ" ಜಿಲ್ಲೆಯಲ್ಲಿ ಯಾವ ಆಹಾರ ಸಾಮಾನು ಮುಖ್ಯವಾಗಿ ಉತ್ಪಾದಿಸುತ್ತಾರೆ?
+    <br>
+    <label><input type="radio" name="q80"> a) ಕಾಯಿ</label><br>
+    <label><input type="radio" name="q80"> b) ಮೆಣಸು</label><br>
+    <label><input type="radio" name="q80" data-correct="true"> c) ತೊಗರಿ</label><br>
+    <label><input type="radio" name="q80"> d) ಜೋಳ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ತೊಗರಿ</span>
+</div>
+<div class="question">
+    <span class="question-number">81.</span> ಪಶ್ಚಿಮ ಘಟ್ಟಗಳಲ್ಲಿ ಹೆಸರಾಂತವಾದ ವನ್ಯಜೀವಿ ಆವಾಸ ಕ್ಕಾಗಿ ಪ್ರಸಿದ್ಧವಾದ ಸ್ಥಳ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q81"> a) ಭದ್ರಾ ಅಭಯಾರಣ್ಯ</label><br>
+    <label><input type="radio" name="q81" data-correct="true"> b) ನಾಗರಹೊಳೆ</label><br>
+    <label><input type="radio" name="q81"> c) ಬನ್ನೇರುಘಟ್ಟ</label><br>
+    <label><input type="radio" name="q81"> d) ಗಂಡಿ ಗದ್ದೆ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ನಾಗರಹೊಳೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">82.</span> ಕರ್ನಾಟಕದ ಏಷಿಯಾ ಖಾತೆಗಾರಿಕೆಗಾಗಿ ಪ್ರಸಿದ್ಧ ನಗರ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q82" data-correct="true"> a) ವಿಜಯಪುರ</label><br>
+    <label><input type="radio" name="q82"> b) ಧಾರವಾಡ</label><br>
+    <label><input type="radio" name="q82"> c) ಹಾಸನ</label><br>
+    <label><input type="radio" name="q82"> d) ಬೆಂಗಳೂರು</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಬೆಂಗಳೂರು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">83.</span> "ದಂಡೆಲಿ" ಯಾವ ವಲಯಕ್ಕೆ ಸೇರಿದೆ?
+    <br>
+    <label><input type="radio" name="q83" data-correct="true"> a) ಪ್ರಾಕೃತಿಕ ಮೀನುಗಾರಿಕೆ</label><br>
+    <label><input type="radio" name="q83"> b) ರೈತಾಪಿ ಉದ್ಯಮ</label><br>
+    <label><input type="radio" name="q83"> c) ಉದ್ಯಾನ ಉದ್ಯಮ</label><br>
+    <label><input type="radio" name="q83"> d) ಬೃಹತ್ ಕೈಗಾರಿಕೆ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಪ್ರಾಕೃತಿಕ ಮೀನುಗಾರಿಕೆ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">84.</span> ಕರ್ನಾಟಕದ "ಕೋಪ್ಪ" ಭಾಗದಲ್ಲಿ ಯಾವ ಸಂಪತ್ತು ದೊರೆಯುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q84"> a) ಚಿನ್ನ</label><br>
+    <label><input type="radio" name="q84"> b) ಕಬ್ಬು</label><br>
+    <label><input type="radio" name="q84"> c) ಕಾಫಿ</label><br>
+    <label><input type="radio" name="q84" data-correct="true"> d) ಗಣಿ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ಗಣಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">85.</span> ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ನಗರಗಳ ವಿಸ್ತಾರವನ್ನು ಯಾರೆ ಪ್ರಾರಂಭಿಸಿದರು?
+    <br>
+    <label><input type="radio" name="q85" data-correct="true"> a) ಮೈಸೂರು ಒಡೆಯರು</label><br>
+    <label><input type="radio" name="q85"> b) ಹೈದರಾಬಾದ್ ನಿಜಾಮ್</label><br>
+    <label><input type="radio" name="q85"> c) ಕೋಲಾರ ಶಿಲ್ಪಿಗಳು</label><br>
+    <label><input type="radio" name="q85"> d) ಮದುವೆ ಮಾಣ್ಯವರ್</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಮೈಸೂರು ಒಡೆಯರು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">86.</span> ಕರ್ನಾಟಕದ ದಕ್ಷಿಣ ಭಾಗದಲ್ಲಿ ದೊರೆಯುವ ಮುಖ್ಯ ಮಣ್ಣು ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q86"> a) ಕೆಂಪು ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q86" data-correct="true"> b) ಕಪ್ಪು ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q86"> c) laterite ಮಣ್ಣು</label><br>
+    <label><input type="radio" name="q86"> d) ಮರಳು ಮಣ್ಣು</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕಪ್ಪು ಮಣ್ಣು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">87.</span> ಮಲೆನಾಡಿನಲ್ಲಿ ಯಾವುದನ್ನು ಹೆಚ್ಚಿನ ಪ್ರಮಾಣದಲ್ಲಿ ಬೆಳೆಸುತ್ತಾರೆ?
+    <br>
+    <label><input type="radio" name="q87"> a) ಕಬ್ಬು</label><br>
+    <label><input type="radio" name="q87" data-correct="true"> b) ಕಾಫಿ</label><br>
+    <label><input type="radio" name="q87"> c) ತಂಬಾಕು</label><br>
+    <label><input type="radio" name="q87"> d) ಅಕ್ಕಿ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕಾಫಿ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">88.</span> "ಬಿಜಾಪುರ" ಯಾವ ಚಾರಿತ್ರಿಕ ಮಹತ್ವವನ್ನು ಹೊಂದಿದೆ?
+    <br>
+    <label><input type="radio" name="q88"> a) ದೇಗುಲಗಳು</label><br>
+    <label><input type="radio" name="q88"> b) ಕೋಟೆಗಳು</label><br>
+    <label><input type="radio" name="q88" data-correct="true"> c) ಗುಮ್ಮಟಗಳು</label><br>
+    <label><input type="radio" name="q88"> d) ಸುಂದರ ತೋಟಗಳು</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಗುಮ್ಮಟಗಳು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">89.</span> ದಕ್ಷಿಣ ಭಾರತದ ಪ್ರಮುಖ ಪೌರಾಣಿಕ ಚಿತ್ರಮಂದಿರ ಯಾವುದು?
+    <br>
+    <label><input type="radio" name="q89"> a) ಬಳ್ಳಾರಿ</label><br>
+    <label><input type="radio" name="q89" data-correct="true"> b) ಚಿತ್ರದುರ್ಗ</label><br>
+    <label><input type="radio" name="q89"> c) ಧಾರವಾಡ</label><br>
+    <label><input type="radio" name="q89"> d) ಹಾಸನ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಚಿತ್ರದುರ್ಗ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">90.</span> ಕರ್ನಾಟಕದ ಪ್ರಸಿದ್ಧ "ಗೋಮಟೇಶ್ವರ" ಪ್ರತಿಮೆ ಯಾವಲ್ಲಿ ಇದೆ?
+    <br>
+    <label><input type="radio" name="q90"> a) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q90"> b) ಶೃಂಗೇರಿ</label><br>
+    <label><input type="radio" name="q90" data-correct="true"> c) ಶ್ರವಣಬೆಳಗೋಳ</label><br>
+    <label><input type="radio" name="q90"> d) ಬೆಳಗಾವಿ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಶ್ರವಣಬೆಳಗೋಳ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">91.</span> "ಹಂಪಿ" ಯಾವ ನದಿಯ ಕಿನಾರೆಯಲ್ಲಿದೆ?
+    <br>
+    <label><input type="radio" name="q91" data-correct="true"> a) ತುಂಗಭದ್ರಾ</label><br>
+    <label><input type="radio" name="q91"> b) ಕೃಷ್ಣಾ</label><br>
+    <label><input type="radio" name="q91"> c) ಕಾವೇರಿ</label><br>
+    <label><input type="radio" name="q91"> d) ಶರಾವತಿ</label><br>
+    <span class="answer">ಉತ್ತರ: a) ತುಂಗಭದ್ರಾ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">92.</span> ಕರ್ನಾಟಕದಲ್ಲಿ "ಉಡುಪಿ" ಏನಿಗಾಗಿ ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q92"> a) ಸಾಂಬಾರ್</label><br>
+    <label><input type="radio" name="q92"> b) ದೋಸೆ</label><br>
+    <label><input type="radio" name="q92" data-correct="true"> c) ಶ್ರೀ ಕೃಷ್ಣ ಮಠ</label><br>
+    <label><input type="radio" name="q92"> d) ಚಾಕುಜೋಡಣೆ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಶ್ರೀ ಕೃಷ್ಣ ಮಠ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">93.</span> ಕರ್ನಾಟಕದ ಯಾವೆಲ್ಲೆಡೆ "ಗೊಮ್ಮಟೇಶ್ವರ ಮಹಾಮಳಿತಾಭಿಷೇಕ" ಹಬ್ಬ ನಡೆಸಲಾಗುತ್ತದೆ?
+    <br>
+    <label><input type="radio" name="q93"> a) ಮಂಗಳೂರು</label><br>
+    <label><input type="radio" name="q93"> b) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q93" data-correct="true"> c) ಶ್ರವಣಬೆಳಗೋಳ</label><br>
+    <label><input type="radio" name="q93"> d) ಧಾರವಾಡ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಶ್ರವಣಬೆಳಗೋಳ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">94.</span> ಕರ್ನಾಟಕದಲ್ಲಿ ಅತೀ ಉಷ್ಣತೆಯನ್ನು ಹೊಂದಿರುವ ಪ್ರದೇಶ ಯಾವದು?
+    <br>
+    <label><input type="radio" name="q94"> a) ಧಾರವಾಡ</label><br>
+    <label><input type="radio" name="q94"> b) ಬೆಳಗಾವಿ</label><br>
+    <label><input type="radio" name="q94"> c) ಬೀದರ</label><br>
+    <label><input type="radio" name="q94" data-correct="true"> d) ವಿಜಯಪುರ</label><br>
+    <span class="answer">ಉತ್ತರ: d) ವಿಜಯಪುರ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">95.</span> "ಬದಾಮಿ" ಏನಿಗಾಗಿ ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q95"> a) ಜಲಪಾತ</label><br>
+    <label><input type="radio" name="q95" data-correct="true"> b) ಗುಹೆ ದೇವಸ್ಥಾನಗಳು</label><br>
+    <label><input type="radio" name="q95"> c) ಕೋಟೆ</label><br>
+    <label><input type="radio" name="q95"> d) ವನಸಂಪತ್ತು</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಗುಹೆ ದೇವಸ್ಥಾನಗಳು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">96.</span> "ಶಿವಮೊಗ್ಗ" ಜಿಲ್ಲೆಯಲ್ಲಿ ಯಾವ ಜಲಪಾತವಿದೆ?
+    <br>
+    <label><input type="radio" name="q96"> a) ಗೋಕಾಕ್</label><br>
+    <label><input type="radio" name="q96" data-correct="true"> b) ಜೋಗ ಜಲಪಾತ</label><br>
+    <label><input type="radio" name="q96"> c) ಅಬ್ಬಿ ಜಲಪಾತ</label><br>
+    <label><input type="radio" name="q96"> d) ಉಲ್ಲಾಳ ಜಲಪಾತ</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಜೋಗ ಜಲಪಾತ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">97.</span> "ಬನ್ನೇರುಘಟ್ಟ ರಾಷ್ಟ್ರೀಯ ಉದ್ಯಾನ" ಯಾವ ನಗರದಲ್ಲಿ ಇದೆ?
+    <br>
+    <label><input type="radio" name="q97"> a) ಮೈಸೂರು</label><br>
+    <label><input type="radio" name="q97"> b) ಶಿವಮೊಗ್ಗ</label><br>
+    <label><input type="radio" name="q97" data-correct="true"> c) ಬೆಂಗಳೂರು</label><br>
+    <label><input type="radio" name="q97"> d) ಮಂಡ್ಯ</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಬೆಂಗಳೂರು</span>
+</div>
+
+<div class="question">
+    <span class="question-number">98.</span> "ಬಳ್ಳಾರಿ" ಜಿಲ್ಲೆಯಲ್ಲಿ ಯಾವ ಶಿಲ್ಪಕಲೆ ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q98"> a) ಬಂಗಾರ</label><br>
+    <label><input type="radio" name="q98" data-correct="true"> b) ಕಲ್ಲು ಶಿಲ್ಪ</label><br>
+    <label><input type="radio" name="q98"> c) ಲೋಹ ಶಿಲ್ಪ</label><br>
+    <label><input type="radio" name="q98"> d) ಚಿನ್ನದ ನಾಣ್ಯಗಳು</label><br>
+    <span class="answer">ಉತ್ತರ: b) ಕಲ್ಲು ಶಿಲ್ಪ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">99.</span> ಕರ್ನಾಟಕದ ಯಾವ ಮೃಷ್ಟಾನ್ನವು ಪ್ರಪಂಚದಾದ್ಯಂತ ಪ್ರಸಿದ್ಧವಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q99" data-correct="true"> a) ಮೈಸೂರು ಪಾಕ</label><br>
+    <label><input type="radio" name="q99"> b) ಬಾದಾಮಿ ಹೋಳಿಗೆ</label><br>
+    <label><input type="radio" name="q99"> c) ಬಿಸಿಬೇಳೆಬಾತ್</label><br>
+    <label><input type="radio" name="q99"> d) ಉಪ್ಪಿಟ್ಟು</label><br>
+    <span class="answer">ಉತ್ತರ: a) ಮೈಸೂರು ಪಾಕ</span>
+</div>
+
+<div class="question">
+    <span class="question-number">100.</span> ಮೈಸೂರು ದಸರಾ ಮಹೋತ್ಸವವು ಯಾವದರಿಂದ ಹೆಸರುವಾಸಿಯಾಗಿದೆ?
+    <br>
+    <label><input type="radio" name="q100"> a) ಉತ್ಸವಗಳು</label><br>
+    <label><input type="radio" name="q100"> b) ವಿದ್ಯುತ್ ಪ್ರತಿಷ್ಟಾಪನೆ</label><br>
+    <label><input type="radio" name="q100" data-correct="true"> c) ಮೆರವಣಿಗೆ</label><br>
+    <label><input type="radio" name="q100"> d) ಕ್ರೀಡಾ ಸ್ಪರ್ಧೆಗಳು</label><br>
+    <span class="answer">ಉತ್ತರ: c) ಮೆರವಣಿಗೆ</span>
+</div>
+
+
+	
+        <!-- Add more questions similarly with their options -->
+
+    <button type="button" onclick="validateAnswers()">ಉತ್ತರ ಪರಿಶೀಲಿಸಿ</button>
+    </form>
+	<div id="scoreboard"></div>
+	<button onclick="window.print()" style="margin: 20px auto; display: block;">ಮುದ್ರಣ (Print)</button>
+
+</body>
+</html>
